@@ -27,7 +27,7 @@ class _DetailsRenderState extends State<DetailsRender> {
 
   Future _getData() async {
     try {
-      var url = DataBaseConstants.DATABASE_URL;
+      var url = DataBaseConstants.DATABASE_GET_URL;
       http.Response response = await http.get(
           url); //socketException may occur if user changes from wifi to mobile data while http request is ongoing
       var data = jsonDecode(response.body);
