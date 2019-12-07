@@ -11,8 +11,11 @@ class MyApp extends StatelessWidget {
       title: 'GDS',
       theme: ThemeData(
         primarySwatch: Colors.indigo,
+        textTheme: TextTheme(
+            button: TextStyle(fontFamily: 'Quicksand'),
+            title: TextStyle(fontFamily: 'Quicksand')),
       ),
-      home: MyHomePage(title: 'GDS'),
+      home: QR(),
     );
   }
 }
