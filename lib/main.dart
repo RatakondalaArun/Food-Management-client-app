@@ -46,8 +46,9 @@ class _MyHomePageState extends State<MyHomePage> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('GDC'),
+          title: Text('GDS'),
           bottom: TabBar(
+            isScrollable: false,
             // controller: _tabController,
             tabs: _tabs(),
           ),
