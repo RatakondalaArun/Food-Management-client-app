@@ -1,13 +1,13 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+// import 'package:flutter_flexible_toast/flutter_flexible_toast.dart';
+import 'package:flutter_flexible_toast/flutter_flexible_toast.dart';
 import 'package:sqldemo/constants/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:sqldemo/constants/error_codes.dart';
-import 'package:toast/toast.dart';
 
 class QR extends StatelessWidget {
   @override
@@ -27,15 +27,25 @@ class _ReaderState extends State<Reader> {
   Widget build(BuildContext context) {
     //render page
     return Scaffold(
-      body: Container(
-        child: SingleChildScrollView(
-          child: Center(
-              child: Column(
-            children: <Widget>[
-              Text(_scanResultId),
-              _modes(),
-            ],
-          )),
+      appBar: AppBar(
+          title: Text(
+        'GDS',
+        style: TextStyle(fontFamily: 'Quicksand'),
+      )),
+      body: SafeArea(
+        top: true,
+        bottom: true,
+        child: Container(
+          padding: EdgeInsets.all(8),
+          child: SingleChildScrollView(
+            child: Center(
+                child: Column(
+              children: <Widget>[
+                Text(_scanResultId),
+                _modes(),
+              ],
+            )),
+          ),
         ),
       ),
     );
@@ -66,6 +76,7 @@ class _ReaderState extends State<Reader> {
       setState(() {
         this._scanResultId = result;
       });
+      _sendData(uid: this._scanResultId, mode: mode);
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.CameraAccessDenied) {
         setState(() {
@@ -81,7 +92,6 @@ class _ReaderState extends State<Reader> {
         _scanResultId = 'Scanning Cancelled';
       });
     }
-    _sendData(uid: this._scanResultId, mode: mode);
   }
 
   _sendData({String uid, String mode}) async {
@@ -98,38 +108,58 @@ class _ReaderState extends State<Reader> {
       if (response.statusCode == 200) {
         print(response.body);
         // print(jsonDecode(response.body[0]));
-        Toast.show('${_validatingUserId(response.body.toString())}', context,
-            duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+        _validatingUserId(response.body.toString());
         return;
       } else if (response.statusCode == 500) {
-        Toast.show('There is an error with server!', context,
-            duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+        _showToast(msg: 'There is an error with server!');
         return;
       } else {
-        Toast.show('There is an unknown error occurred', context,
-            duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
-        print('unable to send data! responsecode = ${response.statusCode}');
+        _showToast(msg: 'There is an unknown error occurred');
       }
     } on FormatException {
       //todo:user dialag
       print('formatexception in qr_reader.dart in _senddata function');
     } on SocketException {
       print('Socket Exception');
-      Toast.show('Check your internet connection', context,
-          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      _showToast(msg: 'Check your internet connection');
       //socketException may occur if user changes
       // from wifi to mobile data while http request is ongoing
     }
   }
 
-  String _validatingUserId(String code) {
+  _validatingUserId(String code) {
     print(code);
-    if (code.contains(ValidationErrors.ERR200)) return 'Updated successfully';
-    if (code.contains(ValidationErrors.ERR380)) return 'Already collected';
-    if (code.contains(ValidationErrors.ERR404_1)) return 'Invalid user';
-    if (code.contains(ValidationErrors.ERR381)) return 'Already taken the food';
-    if (code.contains(ValidationErrors.ERR382)) return 'Miscellaneous error';
-    return 'unknown error occurred';
+    if (code.contains(ValidationErrors.ERR200)) {
+      _showToast(
+          msg: 'Updated successfully',
+          icon: ICON.SUCCESS,
+          bgColor: Colors.green);
+      return;
+    }
+    if (code.contains(ValidationErrors.ERR380)) {
+      _showToast(
+          msg: 'Already collected',
+          icon: ICON.WARNING,
+          bgColor: Colors.redAccent);
+      return;
+    }
+    if (code.contains(ValidationErrors.ERR404_1)) {
+      _showToast(msg: 'Invalid user', icon: ICON.ERROR, bgColor: Colors.red);
+      return;
+    }
+    if (code.contains(ValidationErrors.ERR381)) {
+      _showToast(
+          msg: 'Already taken the food',
+          icon: ICON.INFO,
+          bgColor: Colors.red.withOpacity(0.3));
+      return;
+    }
+    if (code.contains(ValidationErrors.ERR382)) {
+      _showToast(
+          msg: 'Miscellaneous error', icon: ICON.ERROR, bgColor: Colors.red);
+      return;
+    }
+    _showToast(msg: 'unknown error occurred');
   }
 
   //----------------------------------------UI-REUSABLES-----------------------------
@@ -140,10 +170,36 @@ class _ReaderState extends State<Reader> {
   }) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: OutlineButton(
-        child: Text(title),
-        onPressed: () => _scanQr(mode: mode),
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height / 10,
+        child: OutlineButton(
+          child: Text(
+            title,
+            style: TextStyle(fontSize: 20),
+          ),
+          onPressed: () => _scanQr(mode: mode),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          splashColor: Colors.lightGreen.withOpacity(0.2),
+          highlightedBorderColor: Colors.green,
+          highlightColor: Colors.white.withOpacity(0),
+        ),
       ),
     );
+  }
+
+  void _showToast(
+      {@required String msg, Color bgColor, Color txtColor, ICON icon}) {
+    FlutterFlexibleToast.showToast(
+        message: msg,
+        toastLength: Toast.LENGTH_LONG,
+        toastGravity: ToastGravity.BOTTOM,
+        icon: icon,
+        radius: 100,
+        elevation: 10,
+        textColor: txtColor,
+        backgroundColor: bgColor,
+        timeInSeconds: 2);
   }
 }
