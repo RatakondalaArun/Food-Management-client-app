@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:sqldemo/constants/constants.dart';
+import 'package:toast/toast.dart';
 
 class Details extends StatelessWidget {
   @override
@@ -39,6 +41,9 @@ class _DetailsRenderState extends State<DetailsRender> {
         textAlign: TextAlign.center,
       ));
       print('formatexception in json object');
+    } on SocketException {
+      Toast.show('Check your internet connection', context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
     }
   }
 
