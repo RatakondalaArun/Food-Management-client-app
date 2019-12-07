@@ -100,14 +100,13 @@ class _ReaderState extends State<Reader> {
       'id': uid.toString(),
       'mode': mode.toString(),
     };
-    print('sending data ${data.toString()}');
+    // print('sending data ${data.toString()}');
     try {
       var url = DataBaseConstants.DATABASE_PROCESS_URL;
       http.Response response = await http.post(url, body: data);
-      print('site response code = ${response.statusCode}');
+      // print('site response code = ${response.statusCode}');
       if (response.statusCode == 200) {
-        print(response.body);
-        // print(jsonDecode(response.body[0]));
+        // print(response.body);
         _validatingUserId(response.body.toString());
         return;
       } else if (response.statusCode == 500) {
@@ -118,9 +117,9 @@ class _ReaderState extends State<Reader> {
       }
     } on FormatException {
       //todo:user dialag
-      print('formatexception in qr_reader.dart in _senddata function');
+      // print('formatexception in qr_reader.dart in _senddata function');
     } on SocketException {
-      print('Socket Exception');
+      // print('Socket Exception');
       _showToast(msg: 'Check your internet connection');
       //socketException may occur if user changes
       // from wifi to mobile data while http request is ongoing
@@ -128,7 +127,7 @@ class _ReaderState extends State<Reader> {
   }
 
   _validatingUserId(String code) {
-    print(code);
+    // print(code);
     if (code.contains(ValidationErrors.ERR200)) {
       _showToast(
           msg: 'Updated successfully',
