@@ -116,17 +116,17 @@ class _ReaderState extends State<Reader> {
         _showToast(msg: 'There is an unknown error occurred');
       }
     } on FormatException {
-      print('formatexception in qr_reader.dart in _senddata function');
+//      print('formatexception in qr_reader.dart in _senddata function');
     } on SocketException {
-      print('Socket Exception');
-      _showToast(msg: 'Check your internet connection');
+//      print('Socket Exception');
+//      _showToast(msg: 'Check your internet connection');
       //socketException may occur if user changes
       // from wifi to mobile data while http request is ongoing
     }
   }
 
   _validatingUserId(String code) {
-    print(code);
+//    print(code);
     if (code.contains(ValidationErrors.ERR380)) {
       _showToast(
           msg: 'Updated successfull',
