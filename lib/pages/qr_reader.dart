@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// import 'package:flutter_flexible_toast/flutter_flexible_toast.dart';
 import 'package:flutter_flexible_toast/flutter_flexible_toast.dart';
 import 'package:sqldemo/constants/constants.dart';
 import 'package:http/http.dart' as http;
@@ -95,19 +94,19 @@ class _ReaderState extends State<Reader> {
   }
 
   _sendData({String uid, String mode}) async {
+    _showToast(msg: 'Loading',icon: ICON.LOADING,bgColor: Colors.indigo);
     //send data uid and mode to server
     Map<String, dynamic> data = {
       'id': uid.toString(),
       'mode': mode.toString(),
     };
-    print('sending data ${data.toString()}');
+//    print('sending data ${data.toString()}');
     try {
       var url = DataBaseConstants.DATABASE_PROCESS_URL;
       http.Response response = await http.post(url, body: data);
-      print('site response code = ${response.statusCode}');
+//      print('site response code = ${response.statusCode}');
       if (response.statusCode == 200) {
-        print(response.body);
-        // print(jsonDecode(response.body[0]));
+//        print(response.body);
         _validatingUserId(response.body.toString());
         return;
       } else if (response.statusCode == 500) {
@@ -117,26 +116,25 @@ class _ReaderState extends State<Reader> {
         _showToast(msg: 'There is an unknown error occurred');
       }
     } on FormatException {
-      //todo:user dialag
-      print('formatexception in qr_reader.dart in _senddata function');
+//      print('formatexception in qr_reader.dart in _senddata function');
     } on SocketException {
-      print('Socket Exception');
-      _showToast(msg: 'Check your internet connection');
+//      print('Socket Exception');
+//      _showToast(msg: 'Check your internet connection');
       //socketException may occur if user changes
       // from wifi to mobile data while http request is ongoing
     }
   }
 
   _validatingUserId(String code) {
-    print(code);
-    if (code.contains(ValidationErrors.ERR200)) {
+//    print(code);
+    if (code.contains(ValidationErrors.ERR380)) {
       _showToast(
-          msg: 'Updated successfully',
+          msg: 'Updated successfull',
           icon: ICON.SUCCESS,
           bgColor: Colors.green);
       return;
     }
-    if (code.contains(ValidationErrors.ERR380)) {
+    if (code.contains(ValidationErrors.ERR381)) {
       _showToast(
           msg: 'Already collected',
           icon: ICON.WARNING,
@@ -147,19 +145,12 @@ class _ReaderState extends State<Reader> {
       _showToast(msg: 'Invalid user', icon: ICON.ERROR, bgColor: Colors.red);
       return;
     }
-    if (code.contains(ValidationErrors.ERR381)) {
-      _showToast(
-          msg: 'Already taken the food',
-          icon: ICON.INFO,
-          bgColor: Colors.red.withOpacity(0.3));
-      return;
-    }
     if (code.contains(ValidationErrors.ERR382)) {
       _showToast(
-          msg: 'Miscellaneous error', icon: ICON.ERROR, bgColor: Colors.red);
+          msg: 'Invalid error', icon: ICON.ERROR, bgColor: Colors.red);
       return;
     }
-    _showToast(msg: 'unknown error occurred');
+    _showToast(msg: 'unknown error occurred! please try again');
   }
 
   //----------------------------------------UI-REUSABLES-----------------------------
@@ -196,7 +187,7 @@ class _ReaderState extends State<Reader> {
         toastLength: Toast.LENGTH_LONG,
         toastGravity: ToastGravity.BOTTOM,
         icon: icon,
-        radius: 100,
+        radius: 20,
         elevation: 10,
         textColor: txtColor,
         backgroundColor: bgColor,
