@@ -74,3 +74,5 @@
 
 #User
 lib/constants/constants.dart
+key.jks
+key.properties
